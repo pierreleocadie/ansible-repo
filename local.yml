@@ -1,0 +1,29 @@
+---
+- name: Configure EC2 instance
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install Docker
+      ansible.builtin.package:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Start Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Deploy Nginx container
+      ansible.builtin.docker_container:
+        name: nginx
+        image: nginx:latest
+        state: started
+        published_ports:
+          - "80:80"
